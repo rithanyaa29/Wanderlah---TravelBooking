@@ -1,7 +1,9 @@
 
 import axios from "axios";
 
-const API_URL = "http://localhost:3330";
+const API_URL = import.meta.env.DEV
+  ? "http://localhost:3330"
+  : "/api";
 const TOKEN_KEY = "wanderlahToken";
 const ADMIN_TOKEN_KEY = "wanderlahAdminToken";
 // Public API
