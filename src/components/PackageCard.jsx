@@ -1,10 +1,11 @@
+
 import { Link, useNavigate } from "react-router-dom";
 import { useBooking } from "../context/BookingContext";
 import { useAuth } from "../context/AuthContext";
 
 function PackageCard({ packageData }) {
   const navigate = useNavigate();
-  const { addToCart, cartItems } = useBooking();
+  const { addToCart, removeFromCart, cartItems } = useBooking();
   const { isLoggedIn, hasRegisteredUsers } = useAuth();
 
   const isSelected = cartItems?.some(
@@ -13,6 +14,7 @@ function PackageCard({ packageData }) {
 
   const handleSelect = () => {
     if (isSelected) {
+      removeFromCart(packageData.id);
       return;
     }
 
@@ -41,6 +43,22 @@ function PackageCard({ packageData }) {
         <div className="selected-tick">✓</div>
       )}
 
+      {packageData.image && (
+        <img
+          src={packageData.image}
+          alt={`${packageData.destination} travel package`}
+          loading="lazy"
+          decoding="async"
+          width="400"
+          height="250"
+          style={{
+            width: "100%",
+            height: "200px",
+            objectFit: "cover"
+          }}
+        />
+      )}
+
       <div className="package-category">
         {packageData.category}
       </div>
@@ -48,15 +66,17 @@ function PackageCard({ packageData }) {
       <h2>{packageData.title}</h2>
 
       <p>
-        📍 {packageData.destination}{packageData.location ? ` • ${packageData.location}` : ""}
+        📍 {packageData.destination}
+        {packageData.location
+          ? ` • ${packageData.location}`
+          : ""}
       </p>
 
-      <p>
-        ⏱️ {packageData.duration} days
-      </p>
+      <p>⏱️ {packageData.duration} days</p>
 
       <p>
-        ⭐ {packageData.rating} &nbsp;•&nbsp; ₹{packageData.price} / person
+        ⭐ {packageData.rating} &nbsp;•&nbsp; ₹
+        {packageData.price} / person
       </p>
 
       <div>
@@ -72,7 +92,7 @@ function PackageCard({ packageData }) {
           onClick={handleSelect}
         >
           {isSelected
-            ? "✓ Selected"
+            ? "Unselect Package"
             : isLoggedIn
               ? "Select Package"
               : "Login to Book"}

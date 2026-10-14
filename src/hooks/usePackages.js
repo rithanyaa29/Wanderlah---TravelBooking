@@ -14,29 +14,39 @@ function usePackages() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Fetch packages from REST API
-  useEffect(() => {
-    const loadPackages = async () => {
-      try {
-        setLoading(true);
-        setError("");
+  
+useEffect(() => {
+  const controller = new AbortController();
 
-        const data = await fetchPackages();
+  const loadPackages = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-        setPackages(data);
-      } catch (err) {
+      const data = await fetchPackages({
+        signal: controller.signal
+      });
+
+      setPackages(data);
+    } catch (err) {
+      if (err.name !== "CanceledError" &&
+          err.code !== "ERR_CANCELED") {
         console.error("Error fetching packages:", err);
-
-        setError(
-          "Unable to load travel packages. Please try again."
-        );
-      } finally {
+        setError("Unable to load travel packages. Please try again.");
+      }
+    } finally {
+      if (!controller.signal.aborted) {
         setLoading(false);
       }
-    };
+    }
+  };
 
-    loadPackages();
-  }, []);
+  loadPackages();
+
+  return () => {
+    controller.abort();
+  };
+}, []);
 
   // Filter packages
   const filteredPackages = useMemo(() => {

@@ -5,40 +5,52 @@ import { useAuth } from "../context/AuthContext";
 function Login() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login, hasRegisteredUsers, isLoggedIn } = useAuth();
+  const { login, isLoggedIn } = useAuth();
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!hasRegisteredUsers && !isLoggedIn) {
-      navigate("/signup", { replace: true });
+    if (isLoggedIn) {
+      navigate("/", { replace: true });
     }
-  }, [hasRegisteredUsers, isLoggedIn, navigate]);
+  }, [isLoggedIn, navigate]);
 
-  if (!hasRegisteredUsers && !isLoggedIn) {
+  if (isLoggedIn) {
     return null;
   }
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+
+    if (loading) return;
 
     if (!identifier.trim() || !password) {
       alert("Please enter your username/email and password.");
       return;
     }
 
-    const result = login({ identifier, password });
+    setLoading(true);
 
-    if (!result.success) {
-      alert(result.message);
-      return;
+    try {
+      const result = await login({
+        identifier,
+        password
+      });
+
+      if (!result.success) {
+        alert(result.message || "Login failed. Please try again.");
+        return;
+      }
+
+      const destination = location.state?.from || "/";
+
+      alert(`Welcome back, ${result.user.username}!`);
+      navigate(destination, { replace: true });
+    } finally {
+      setLoading(false);
     }
-
-    const destination = location.state?.from || "/";
-
-    alert(`Welcome back, ${result.user.username}!`);
-    navigate(destination, { replace: true });
   };
 
   return (
@@ -58,6 +70,7 @@ function Login() {
             placeholder="Enter your username or email"
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
+            required
           />
 
           <label>Password</label>
@@ -66,10 +79,11 @@ function Login() {
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
 
-          <button type="submit" className="button">
-            Login
+          <button type="submit" className="button" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 

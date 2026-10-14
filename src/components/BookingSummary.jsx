@@ -1,107 +1,193 @@
 import { useNavigate } from "react-router-dom";
-import { useBooking } from "../context/BookingContext";
-import TravelerCard from "./TravelerCard.jsx"
+import { useSelector } from "react-redux";
+
+import {
+  selectPackageCost,
+  selectDiscount,
+  selectTaxes,
+  selectFinalAmount,
+  selectTravelerCount
+} from "../store/bookingSlice";
+
+import TravelerCard from "./TravelerCard.jsx";
+
+
 function BookingSummary() {
+
   const navigate = useNavigate();
 
+
+  // Get booking data from Redux
   const {
     cartItems,
     travelDates,
-    travelerDetails,
-    travelerCount,
-    packageCost,
-    discount,
-    taxes,
-    finalAmount
-  } = useBooking();
+    travelerDetails
+  } = useSelector(
+    (state) => state.booking
+  );
 
+
+  // Get calculated values from Redux selectors
+  const packageCost = useSelector(
+    selectPackageCost
+  );
+
+  const discount = useSelector(
+    selectDiscount
+  );
+
+  const taxes = useSelector(
+    selectTaxes
+  );
+
+  const finalAmount = useSelector(
+    selectFinalAmount
+  );
+
+  const travelerCount = useSelector(
+    selectTravelerCount
+  );
+
+
+  // Continue to payment
   const handleContinue = () => {
-    navigate("/booking/payment");
+
+    navigate(
+      "/booking/payment"
+    );
+
   };
 
+
   return (
+
     <div className="booking-step">
 
-      <h2>3. Booking Summary</h2>
+      <h2>
+        3. Booking Summary
+      </h2>
 
-      {/* Selected Packages */}
+
+      {/* SELECTED PACKAGES */}
+
       <section>
-        <h3>Selected Packages</h3>
+
+        <h3>
+          Selected Packages
+        </h3>
+
 
         {cartItems.map((item) => (
+
           <div
             key={item.id}
             className="summary-item"
           >
-            <h4>{item.title}</h4>
+
+            <h4>
+              {item.title}
+            </h4>
 
             <p>
-              Destination: {item.destination}
+              Destination:{" "}
+              {item.destination}
             </p>
 
             <p>
-              Duration: {item.duration} days
+              Duration:{" "}
+              {item.duration} days
             </p>
 
             <p>
-              Travelers: {item.travelers}
+              Travelers:{" "}
+              {item.travelers}
             </p>
 
             <p>
-              Amount: ₹{item.total}
+              Amount: ₹
+              {Number(
+                item.total
+              ).toLocaleString()}
             </p>
+
           </div>
+
         ))}
+
       </section>
 
 
-      {/* Travel Information */}
+      {/* TRAVEL INFORMATION */}
+
       <section>
-        <h3>Travel Information</h3>
+
+        <h3>
+          Travel Information
+        </h3>
 
         <p>
-          Start Date: {travelDates.startDate}
+          Start Date:{" "}
+          {travelDates.startDate}
         </p>
 
         <p>
-          End Date: {travelDates.endDate}
+          End Date:{" "}
+          {travelDates.endDate}
         </p>
 
         <p>
-          Total Travelers: {travelerCount}
+          Total Travelers:{" "}
+          {travelerCount}
         </p>
+
       </section>
 
 
-      {/* Traveler Information */}
+      {/* TRAVELER INFORMATION */}
+
       <section>
-  <h3>Traveler Information</h3>
 
-  <TravelerCard traveler={travelerDetails} />
-</section>
+        <h3>
+          Traveler Information
+        </h3>
+
+        <TravelerCard
+          traveler={travelerDetails}
+        />
+
+      </section>
 
 
-      {/* Payment Summary */}
+      {/* PAYMENT SUMMARY */}
+
       <section>
-        <h3>Payment Summary</h3>
+
+        <h3>
+          Payment Summary
+        </h3>
 
         <p>
-          Package Cost: ₹{packageCost}
+          Package Cost: ₹
+          {packageCost.toLocaleString()}
         </p>
 
         <p>
-          Discount: ₹{discount}
+          Discount: ₹
+          {discount.toLocaleString()}
         </p>
 
         <p>
-          Taxes: ₹{taxes}
+          Taxes: ₹
+          {taxes.toLocaleString()}
         </p>
 
         <hr />
 
         <h2>
-          Final Amount: ₹{finalAmount}
+          Final Amount: ₹
+          {finalAmount.toLocaleString()}
         </h2>
+
       </section>
 
 
@@ -113,7 +199,8 @@ function BookingSummary() {
       </button>
 
     </div>
-  );
-}
 
+  );
+
+}
 export default BookingSummary;

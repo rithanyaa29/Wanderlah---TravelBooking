@@ -5,11 +5,12 @@ import { useAuth } from "../context/AuthContext";
 function Signup() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signup, hasRegisteredUsers, isLoggedIn } = useAuth();
+  const { signup, isLoggedIn } = useAuth();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -21,8 +22,10 @@ function Signup() {
     return null;
   }
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
+
+    if (loading) return;
 
     if (!username.trim() || !email.trim() || !password) {
       alert("Please fill all fields.");
@@ -34,21 +37,32 @@ function Signup() {
       return;
     }
 
-    if (password.length < 6) {
-      alert("Password must contain at least 6 characters.");
+    if (password.length < 8) {
+      alert("Password must contain at least 8 characters.");
       return;
     }
 
-    const result = signup({ username, email, password });
+    setLoading(true);
 
-    if (!result.success) {
-      alert(result.message);
-      return;
+    try {
+      const result = await signup({
+        username,
+        email,
+        password
+      });
+
+      if (!result.success) {
+        alert(result.message || "Registration failed.");
+        return;
+      }
+
+      alert(result.message || "Registration successful! Please log in.");
+
+      // Signup no longer logs the user in automatically.
+      navigate("/login", { replace: true });
+    } finally {
+      setLoading(false);
     }
-
-    alert(`Welcome to Wanderlah, ${result.user.username}!`);
-    const destination = location.state?.from || "/";
-    navigate(destination, { replace: true });
   };
 
   return (
@@ -68,6 +82,7 @@ function Signup() {
             placeholder="Choose a username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            required
           />
 
           <label>Email</label>
@@ -76,6 +91,7 @@ function Signup() {
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
 
           <label>Password</label>
@@ -84,18 +100,18 @@ function Signup() {
             placeholder="Create a password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            minLength={8}
+            required
           />
 
-          <button type="submit" className="button">
-            Create Account
+          <button type="submit" className="button" disabled={loading}>
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
-        {hasRegisteredUsers && (
-          <p className="auth-switch">
-            Already have an account? <Link to="/login">Login</Link>
-          </p>
-        )}
+        <p className="auth-switch">
+          Already have an account? <Link to="/login">Login</Link>
+        </p>
       </div>
     </main>
   );

@@ -1,66 +1,145 @@
 import { useNavigate } from "react-router-dom";
-import { useBooking } from "../context/BookingContext";
+import { useDispatch, useSelector } from "react-redux";
+
+import {
+  setTravelerDetails
+} from "../store/bookingSlice";
+
 import Input from "./Input";
 import Button from "./Button";
 
+
 function TravelerForm() {
+
   const navigate = useNavigate();
 
+  const dispatch = useDispatch();
+
+
+  // Get booking data from Redux
   const {
     travelerDetails,
-    setTravelerDetails,
     cartItems
-  } = useBooking();
+  } = useSelector(
+    (state) => state.booking
+  );
 
+
+  // Update traveler details
   const handleChange = (e) => {
-    setTravelerDetails({
-      ...travelerDetails,
-      [e.target.name]: e.target.value
-    });
+
+    dispatch(
+      setTravelerDetails({
+        ...travelerDetails,
+        [e.target.name]: e.target.value
+      })
+    );
+
   };
 
+
+  // Continue to booking summary
   const handleContinue = (e) => {
+
     e.preventDefault();
 
+
+    // Check package
     if (cartItems.length === 0) {
-      alert("Please select a package first.");
+
+      alert(
+        "Please select a package first."
+      );
+
       navigate("/packages");
+
       return;
     }
 
+
+    // Validate name
     if (!travelerDetails.name.trim()) {
-      alert("Please enter your name.");
+
+      alert(
+        "Please enter your name."
+      );
+
       return;
     }
 
+
+    // Validate email
     if (!travelerDetails.email.trim()) {
-      alert("Please enter your email.");
+
+      alert(
+        "Please enter your email."
+      );
+
       return;
     }
 
-    if (!/^\S+@\S+\.\S+$/.test(travelerDetails.email)) {
-      alert("Please enter a valid email address.");
+
+    // Validate email format
+    if (
+      !/^\S+@\S+\.\S+$/.test(
+        travelerDetails.email
+      )
+    ) {
+
+      alert(
+        "Please enter a valid email address."
+      );
+
       return;
     }
 
+
+    // Validate phone
     if (!travelerDetails.phone.trim()) {
-      alert("Please enter your phone number.");
+
+      alert(
+        "Please enter your phone number."
+      );
+
       return;
     }
 
-    if (!/^\d{10}$/.test(travelerDetails.phone)) {
-      alert("Please enter a valid 10-digit phone number.");
+
+    // Validate 10 digit phone
+    if (
+      !/^\d{10}$/.test(
+        travelerDetails.phone
+      )
+    ) {
+
+      alert(
+        "Please enter a valid 10-digit phone number."
+      );
+
       return;
     }
 
-    navigate("/booking/summary");
+
+    // Go to summary
+    navigate(
+      "/booking/summary"
+    );
+
   };
 
-  return (
-    <div className="booking-step">
-      <h2>2. Traveler Details</h2>
 
-      <form onSubmit={handleContinue}>
+  return (
+
+    <div className="booking-step">
+
+      <h2>
+        2. Traveler Details
+      </h2>
+
+
+      <form
+        onSubmit={handleContinue}
+      >
 
         <Input
           label="Full Name"
@@ -72,6 +151,7 @@ function TravelerForm() {
           required
         />
 
+
         <Input
           label="Email"
           type="email"
@@ -81,6 +161,7 @@ function TravelerForm() {
           onChange={handleChange}
           required
         />
+
 
         <Input
           label="Phone Number"
@@ -92,13 +173,18 @@ function TravelerForm() {
           required
         />
 
+
         <Button type="submit">
           Continue
         </Button>
 
       </form>
+
     </div>
+
   );
+
 }
+
 
 export default TravelerForm;

@@ -1,4 +1,4 @@
-export const packages = [
+const packages = [
   /* =========================
      KERALA
   ========================= */
@@ -7,6 +7,7 @@ export const packages = [
     destination: "Kerala",
     location: "Munnar",
     title: "Munnar Tea Garden Escape",
+    image: "https://images.unsplash.com/photo-1672219386269-486cbbe9a50f?auto=format&fit=crop&w=800&q=75",
     duration: 3,
     price: 9500,
     category: "Nature",
@@ -655,3 +656,40 @@ export const packages = [
     exclusions: ["Travel tickets", "Entry fees", "Personal expenses", "Travel insurance"]
   }
 ];
+
+const packageImages = {
+  1: "https://images.unsplash.com/photo-1672219386269-486cbbe9a50f?auto=format&fit=crop&w=800&q=75", // Munnar tea hills
+  2: "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?auto=format&fit=crop&w=800&q=75", // Alleppey backwaters
+  3: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?auto=format&fit=crop&w=800&q=75", // Wayanad waterfalls
+  4: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=75", // Kochi coast
+  5: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=800&q=75", // Thekkady wildlife
+  6: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=75", // Baga beach
+  7: "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=800&q=75", // Calangute coast
+  8: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=75", // Panaji coast
+  9: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=75", // Solang Valley
+  10: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=75", // Old Manali scenery
+  11: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=75", // Rohtang mountains
+  12: "https://images.unsplash.com/photo-1599661046827-dacff0c0f09a?auto=format&fit=crop&w=800&q=75", // Amber Fort
+  13: "https://images.unsplash.com/photo-1602643163983-ed0babc39797?auto=format&fit=crop&w=800&q=75", // Jaipur palace
+  14: "https://images.unsplash.com/photo-1599661046827-dacff0c0f09a?auto=format&fit=crop&w=800&q=75", // Hawa Mahal
+  15: "https://images.unsplash.com/photo-1597074866923-dc0589150358?auto=format&fit=crop&w=800&q=75", // Ooty lake and hills
+  16: "https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=800&q=75", // Coonoor hills
+  17: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=75", // Varkala beach
+  18: "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=800&q=75", // Kovalam beach
+  19: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=800&q=75", // Vagamon hills
+  20: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=75", // Kodaikanal hills
+  21: "https://images.unsplash.com/photo-1566127444979-b3d2b654e3d7?auto=format&fit=crop&w=800&q=75", // Mahabalipuram heritage
+  22: "https://images.unsplash.com/photo-1741798234436-5f2ab79da88a?auto=format&fit=crop&w=800&q=75", // Rameswaram temple
+  23: "https://www.pelago.com/img/products/IN-India/stroll-through-the-french-quarters-of-pondicherry/96456462-4fdd-4889-97f6-e84ff421c893_stroll-through-the-french-quarters-of-pondicherry-xlarge.jpg", // Pondicherry French Quarter
+  24: "https://www.tripplannersindia.com/assets/blog/images/thingstodoincoorg/Coffee_Plantation_Tour.webp", // Coorg coffee plantation
+  25: "https://images.unsplash.com/photo-1657856855186-7cf4909a4f78?auto=format&fit=crop&w=800&q=75", // Mysore Palace
+  26: "https://images.unsplash.com/photo-1667115788157-72f063f2a7a3?auto=format&fit=crop&w=800&q=75" // Hampi ruins
+};
+
+export const packagesWithImages = packages.map((pkg) => ({
+  ...pkg,
+  image: pkg.image || packageImages[pkg.id]
+}));
+
+export { packagesWithImages as packages };
+

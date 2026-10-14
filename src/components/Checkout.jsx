@@ -1,16 +1,24 @@
 import { useNavigate } from "react-router-dom";
-import { useBooking } from "../context/BookingContext";
+import { useSelector } from "react-redux";
+
+import {
+  selectPackageCost,
+  selectDiscount,
+  selectTaxes,
+  selectFinalAmount
+} from "../store/bookingSlice";
 
 function Checkout() {
   const navigate = useNavigate();
 
-  const {
-    cartItems,
-    packageCost,
-    discount,
-    taxes,
-    finalAmount,
-  } = useBooking();
+  const cartItems = useSelector(
+    (state) => state.booking.cartItems
+  );
+
+  const packageCost = useSelector(selectPackageCost);
+  const discount = useSelector(selectDiscount);
+  const taxes = useSelector(selectTaxes);
+  const finalAmount = useSelector(selectFinalAmount);
 
   if (cartItems.length === 0) {
     return (

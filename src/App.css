@@ -2918,18 +2918,14 @@ footer small {
    SEARCH + BACKGROUND FINAL FIX
 ========================================================= */
 
-/*
-  Uses a real travel photo directly, so the background works
-  even when public/travel-bg.jpg is not present.
-  The light overlay keeps text and cards readable.
-*/
+/* A muted landscape texture adds depth while keeping content readable. */
 body {
   background:
     linear-gradient(
-      rgba(244, 249, 252, 0.90),
-      rgba(244, 249, 252, 0.95)
+      rgba(244, 249, 252, 0.91),
+      rgba(244, 249, 252, 0.94)
     ),
-    url("https://images.unsplash.com/photo-1668294714877-e814651a57df?auto=format&fit=crop&fm=jpg&q=80&w=2400");
+    url("https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&fm=jpg&q=80&w=2400");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

@@ -1,15 +1,11 @@
 import { createContext, useContext, useState } from "react";
+import {
+  signupTraveler,
+  loginTraveler
+} from "../api/api";
 
-const USERS_KEY = "wanderlahUsers";
 const CURRENT_USER_KEY = "wanderlahCurrentUser";
-
-const readUsers = () => {
-  try {
-    return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
-  } catch {
-    return [];
-  }
-};
+const TOKEN_KEY = "wanderlahToken";
 
 const readCurrentUser = () => {
   try {
@@ -22,110 +18,94 @@ const readCurrentUser = () => {
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [users, setUsers] = useState(readUsers);
   const [currentUser, setCurrentUser] = useState(readCurrentUser);
+  const [token, setToken] = useState(
+    () => localStorage.getItem(TOKEN_KEY)
+  );
 
-  const signup = ({ username, email, password }) => {
-    const cleanUsername = username.trim();
-    const cleanEmail = email.trim().toLowerCase();
-
-    if (!cleanUsername || !cleanEmail || !password) {
+  // REGISTER A NEW TRAVELER
+  const signup = async ({ username, email, password }) => {
+    if (!username?.trim() || !email?.trim() || !password) {
       return {
         success: false,
         message: "Please fill all fields."
       };
     }
 
-    const usernameExists = users.some(
-      (user) => user.username.toLowerCase() === cleanUsername.toLowerCase()
-    );
+    try {
+      await signupTraveler({
+        username: username.trim(),
+        email: email.trim().toLowerCase(),
+        password
+      });
 
-    const emailExists = users.some(
-      (user) => user.email.toLowerCase() === cleanEmail
-    );
-
-    if (usernameExists) {
+      return {
+        success: true,
+        message: "Registration successful. Please log in."
+      };
+    } catch (error) {
       return {
         success: false,
-        message: "Username already exists."
+        message:
+          error.response?.data?.message ||
+          "Unable to register. Please try again."
       };
     }
-
-    if (emailExists) {
-      return {
-        success: false,
-        message: "Email is already registered."
-      };
-    }
-
-    const newUser = {
-      id: Date.now(),
-      username: cleanUsername,
-      email: cleanEmail,
-      password
-    };
-
-    const updatedUsers = [...users, newUser];
-
-    setUsers(updatedUsers);
-    localStorage.setItem(USERS_KEY, JSON.stringify(updatedUsers));
-
-    const safeUser = {
-      id: newUser.id,
-      username: newUser.username,
-      email: newUser.email
-    };
-
-    setCurrentUser(safeUser);
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(safeUser));
-
-    return {
-      success: true,
-      user: safeUser
-    };
   };
 
-  const login = ({ identifier, password }) => {
-    const value = identifier.trim().toLowerCase();
-
-    const user = users.find(
-      (item) =>
-        item.username.toLowerCase() === value ||
-        item.email.toLowerCase() === value
-    );
-
-    if (!user || user.password !== password) {
+  // LOG IN A TRAVELER
+  const login = async ({ identifier, password }) => {
+    if (!identifier?.trim() || !password) {
       return {
         success: false,
-        message: "Invalid username/email or password."
+        message: "Enter your username/email and password."
       };
     }
 
-    const safeUser = {
-      id: user.id,
-      username: user.username,
-      email: user.email
-    };
+    try {
+      const data = await loginTraveler({
+        identifier: identifier.trim(),
+        password
+      });
 
-    setCurrentUser(safeUser);
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(safeUser));
+      // Save the JWT token and safe user information
+      localStorage.setItem(TOKEN_KEY, data.token);
+      localStorage.setItem(
+        CURRENT_USER_KEY,
+        JSON.stringify(data.user)
+      );
 
-    return {
-      success: true,
-      user: safeUser
-    };
+      setToken(data.token);
+      setCurrentUser(data.user);
+
+      return {
+        success: true,
+        user: data.user
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message:
+          error.response?.data?.message ||
+          "Login failed. Please try again."
+      };
+    }
   };
 
+  // LOG OUT THE TRAVELER
   const logout = () => {
-    setCurrentUser(null);
+    localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(CURRENT_USER_KEY);
+
+    setToken(null);
+    setCurrentUser(null);
   };
 
   const value = {
-    users,
     currentUser,
-    isLoggedIn: Boolean(currentUser),
-    hasRegisteredUsers: users.length > 0,
+    token,
+    isLoggedIn: Boolean(currentUser && token),
+    hasRegisteredUsers: false,
     signup,
     login,
     logout

@@ -108,5 +108,4 @@ function BookingTravelers() {
     </div>
   );
 }
-
 export default BookingTravelers;

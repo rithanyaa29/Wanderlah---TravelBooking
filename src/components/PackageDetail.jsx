@@ -1,47 +1,80 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 import { fetchPackageById } from "../api/api";
-import { useBooking } from "../context/BookingContext";
-import { useAuth } from "../context/AuthContext";
 
+import {
+  addToCart,
+  cachePackage
+} from "../store/bookingSlice";
+
+import { useAuth } from "../context/AuthContext";
 import Loading from "./Loading";
 
 function PackageDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const { addToCart } = useBooking();
   const { isLoggedIn } = useAuth();
+
+  // Get this package from the Redux cache
+  const cachedPackage = useSelector(
+    (state) => state.booking.packageCache[id]
+  );
 
   const [packageData, setPackageData] = useState(null);
   const [travelers, setTravelers] = useState(1);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadPackage = async () => {
       try {
         setLoading(true);
         setError("");
 
+      // First check Redux cache
+if (cachedPackage) {
+
+  setPackageData(cachedPackage);
+  return;
+}
+
+        // If not cached, fetch from API
         const data = await fetchPackageById(id);
 
+        if (cancelled) return;
+
         setPackageData(data);
+
+        // Save the result in Redux cache
+        dispatch(cachePackage(data));
       } catch (err) {
         console.error("Error fetching package:", err);
 
-        setError(
-          "Unable to load package details. Please try again."
-        );
+        if (!cancelled) {
+          setError(
+            "Unable to load package details. Please try again."
+          );
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
     loadPackage();
-  }, [id]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, cachedPackage, dispatch]);
 
   if (loading) {
     return <Loading />;
@@ -78,13 +111,18 @@ function PackageDetail() {
       return;
     }
 
-    addToCart(packageData, travelers);
+    dispatch(
+      addToCart({
+        packageData,
+        travelers
+      })
+    );
+
     navigate("/booking/dates");
   };
 
   return (
     <main className="package-detail-page">
-
       <section className="package-detail">
 
         <div className="package-detail-header">
@@ -98,7 +136,6 @@ function PackageDetail() {
         </div>
 
         <div className="package-detail-info">
-
           <p>
             <strong>Duration:</strong>{" "}
             {packageData.duration} days
@@ -113,53 +150,41 @@ function PackageDetail() {
             <strong>Price per person:</strong>{" "}
             ₹{packageData.price}
           </p>
-
         </div>
 
         <section>
           <h2>About This Package</h2>
-
           <p>{packageData.description}</p>
         </section>
 
         <section>
           <h2>Itinerary</h2>
-
           <ul>
             {packageData.itinerary?.map((item, index) => (
-              <li key={index}>
-                {item}
-              </li>
+              <li key={index}>{item}</li>
             ))}
           </ul>
         </section>
 
         <section>
           <h2>Inclusions</h2>
-
           <ul>
             {packageData.inclusions?.map((item, index) => (
-              <li key={index}>
-                {item}
-              </li>
+              <li key={index}>{item}</li>
             ))}
           </ul>
         </section>
 
         <section>
           <h2>Exclusions</h2>
-
           <ul>
             {packageData.exclusions?.map((item, index) => (
-              <li key={index}>
-                {item}
-              </li>
+              <li key={index}>{item}</li>
             ))}
           </ul>
         </section>
 
         <section className="booking-box">
-
           <h2>Book This Package</h2>
 
           <label>
@@ -188,11 +213,9 @@ function PackageDetail() {
           >
             Select Package
           </button>
-
         </section>
 
       </section>
-
     </main>
   );
 }
